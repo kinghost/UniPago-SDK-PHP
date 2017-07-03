@@ -76,19 +76,37 @@ Listagem de clientes
 $clientes = $recursoCliente->listar();
 ```
 
-Buscar um cliente específico
+Buscar um cliente específico por ID
 
 ```
 $cliente = $recursoCliente->buscar(1000);
 ```
 
-Buscar um cliente específico
+Deletar um cliente por ID
 
 ```
 $resultado = $recursoCliente->deletar(1000);
 ```
 
 Criar um cliente
+
+Exemplo
+
+```
+$dados = [
+    'nome' => 'Cliente Teste',
+    'endereco' => 'Rua Teste 402, 1212 B3',
+    'bairro' => 'Teste',
+    'cidade' => 'Porto Alegre',
+    'pais' => 'Brasil',
+    'cep' => '99999999',
+    'telefone_principal' => '51999999999',
+    'email_contato' => 'teste@unipago.com.br',
+    'email_cobranca' => 'teste@unipago.com.br',
+    'cpf_cnpj' => '99999999999',
+    'estado' => 'RS' 
+];
+```
 
 ```
 $cliente = $recursoCliente->criar($dados);
@@ -123,6 +141,24 @@ $cobranca = $recursoCobranca->buscar($id_cobranca);
 ```
 
 Criar uma cobrança
+
+Exemplo
+
+```
+
+$dados = [
+    'items' => [ 
+        '0' => [ 
+            'nome' => Teste,
+            'valor_unitario' => 123.45,
+            'quantidade' => 3
+        ],    
+    ],        
+    'data_vencimento' => '21/11/1986',
+    'cliente' => {{cliente_id}}
+];
+
+```
 
 ```
 $cobranca = $recursoCobranca->criar($dados);
