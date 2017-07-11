@@ -3,10 +3,8 @@
 namespace UnipagoApi;
 
 use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Psr7\Request;
-use Guzzle\Http\Exception\ClientErrorResponseException;
-use UnipagoApi\Connection;
+use League\OAuth2\Client\Provider\GenericProvider;
+use UnipagoApi\Exception\UnipagoException;
 
 /**
 * Client for Unipago Api
@@ -56,10 +54,10 @@ class Connection
 
     /**
      * Client constructor.
-     * @param $scope
-     * @param $client_id
-     * @param $client_secret
-     * @internal param $config
+     * @param string $scope
+     * @param string $client_id
+     * @param string $client_secret
+     * @throws UnipagoException
      */
     public function __construct($scope, $client_id, $client_secret)
     {
@@ -73,8 +71,8 @@ class Connection
     }
 
     /**
-     * @param $method
-     * @param $url
+     * @param string $method
+     * @param string $url
      * @param array $data
      * @return mixed
      */
@@ -84,7 +82,6 @@ class Connection
 
         $client = new GuzzleClient();
         $options['headers'] = $headers;
-        //$options['http_errors'] = false;
 
         /**
          * Efetua o request
@@ -101,12 +98,13 @@ class Connection
      * @param string $clientId
      * @param string $clientSecret
      * @return string
+     * @throws UnipagoException
      */
     public function getAccessToken($scope, $clientId, $clientSecret)
     {
         $oauth_url = 'http://oauth.unipago.com.br';
 
-        $provider = new \League\OAuth2\Client\Provider\GenericProvider([
+        $provider = new GenericProvider([
             'clientId'                => $clientId,    // The client ID assigned to you by the provider
             'clientSecret'            => $clientSecret,    // The client password assigned to you by the provider
             'urlAuthorize'            => $oauth_url . '/oauth/authorize',
@@ -119,9 +117,9 @@ class Connection
             $accessToken = $provider->getAccessToken('client_credentials', ['scope' => $scope]);
 
             return $accessToken->getToken();
-        } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+        } catch (\Exception $e) {
             // Failed to get the access token
-            exit($e->getMessage());
+            throw new UnipagoException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
