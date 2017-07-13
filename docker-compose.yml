@@ -5,7 +5,7 @@ services:
     image: php:7.1-alpine
     container_name: dev-unipago-api-sdk-php-web
     hostname: dev-unipago-api-sdk-php-web
-    command: php -S 0.0.0.0:80 -t /app/tests
+    command: php -S 0.0.0.0:80 -t /app/examples
     volumes:
       - ./:/app
 
