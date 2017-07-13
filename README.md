@@ -4,11 +4,11 @@ Esta biblioteca foi desenvolvida para facilitar a utilização da API do Unipago
 Para a correta utilização deste SDK, é necessária a utilização da Linguagem PHP com versão igual ou superior a 5.5.0.
 Documentação das entradas e saidas
 
-##Instalação
+## Instalação
 
 Você pode utilizar o <b>Composer</b> ou simplesmente <b>Efetuar o Download</b>
 
-##Composer
+## Composer
 
 Orientamos a instalação pelo [composer](https://getcomposer.org/). Siga as  instruções de instalação se você ainda não tiver o composer instalado.
 Uma vez instalado o composer, execute o seguinte comando na raíz do seu projeto para instalar o pacote:
@@ -22,7 +22,7 @@ Finalmente, tenha certeza de incluir o autoloader:
 ```php
     require_once '/path/to/your-project/vendor/autoload.php';
 ```
-##Autenticação com OAuth2
+## Autenticação com OAuth2
 
 Utilizamos a tecnologia [OAuth2](https://oauth.net/2/) para autenticação do sistema. 
 Para gerar as chaves de autenticação no sistema você deve acessar o [UniPago](https://unipago.com.br/configuracoes-api/listar).
@@ -55,7 +55,7 @@ echo "</pre>";
 
 ```
 
-##Exemplo Básico
+## Exemplo Básico
 
 Listando Clientes
 ```php
