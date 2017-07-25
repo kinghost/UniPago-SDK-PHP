@@ -4,4 +4,4 @@
 composer.phar
 composer.lock
 phpDocumentor.phar
-/.env
+.env
