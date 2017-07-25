@@ -1,13 +1,18 @@
-version: '2'
+version: '3'
 services:
-
   web:
     image: php:7.1-alpine
-    container_name: dev-unipago-api-sdk-php-web
-    hostname: dev-unipago-api-sdk-php-web
+    container_name: unipago-sdk-php
+    hostname: unipago-sdk-php
     command: php -S 0.0.0.0:80 -t /app/examples
+    working_dir: /app/examples
+    ports:
+      - 8080:80
     volumes:
       - ./:/app
+    environment:
+      CLIENT_ID: 'CLIENT_ID'
+      CLIENT_SECRET: 'CLIENT_SECRET'
 
   composer:
     image: composer/composer
