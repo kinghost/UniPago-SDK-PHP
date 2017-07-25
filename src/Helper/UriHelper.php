@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the kinghost/UniPago-SDK-PHP
+ * This file is part of the unipago/api-sdk-php
  *
  * Classe que define as URLs que serão utilizadas na conexão com a API do UniPago
  *
