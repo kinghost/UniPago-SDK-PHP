@@ -1,0 +1,6 @@
+/.idea/
+/vendor/
+/docs/api/
+composer.phar
+composer.lock
+phpDocumentor.phar
