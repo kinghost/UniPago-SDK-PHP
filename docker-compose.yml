@@ -6,13 +6,11 @@ services:
     hostname: unipago-sdk-php
     command: php -S 0.0.0.0:80 -t /app/examples
     working_dir: /app/examples
+    env_file: .env
     ports:
       - 8080:80
     volumes:
       - ./:/app
-    environment:
-      CLIENT_ID: 'CLIENT_ID'
-      CLIENT_SECRET: 'CLIENT_SECRET'
 
   composer:
     image: composer/composer
