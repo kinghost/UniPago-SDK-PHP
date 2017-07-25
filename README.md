@@ -1,7 +1,7 @@
 Biblioteca para consumo da API do UniPago
 =====
 Esta biblioteca foi desenvolvida para facilitar a utilização da API do Unipago, oferencendo todos os recursos disponíveis de forma prática e simplificada.
-Para a correta utilização deste SDK, é necessária a utilização da Linguagem PHP com versão igual ou superior a 5.5.0.
+Para a correta utilização deste SDK, é necessária a utilização da Linguagem PHP com versão igual ou superior a 5.6.0.
 Documentação das entradas e saidas
 
 ## Instalação
