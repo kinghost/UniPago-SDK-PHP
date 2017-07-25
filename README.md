@@ -31,9 +31,14 @@ Para testar as suas chaves, você pode utilizar o script de exemplo abaixo:
 
 ```php
 <?php
+/**
+* Carregando o autoload
+*/
+require __DIR__ . '/../vendor/autoload.php';
 
-require "../../vendor/autoload.php";
-
+/**
+* Importando as classes
+*/
 use UnipagoApi\Connection;
 
 /**
@@ -60,11 +65,10 @@ echo "</pre>";
 Listando Clientes
 ```php
 <?php
-
 /**
 * Carregando o autoload
 */
-require "../vendor/autoload.php";
+require __DIR__ . '/../vendor/autoload.php';
 
 /**
 * Importando as classes
