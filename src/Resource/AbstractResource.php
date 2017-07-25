@@ -1,59 +1,80 @@
-<?php 
-
+<?php
+/**
+ * This file is part of the kinghost/UniPago-SDK-PHP
+ *
+ * Classe define os metodos comuns aos recursos da API UniPago
+ *
+ * @copyright Copyright (c) UniPago <suporte@unipago.com.br>
+ * @license https://creativecommons.org/licenses/by/4.0/ Creative Commons Attribution Share Alike 4.0
+ * @link https://packagist.org/packages/unipago/api-sdk-php Packagist
+ * @link https://github.com/kinghost/UniPago-SDK-PHP GitHub
+ */
 namespace UnipagoApi\Resource;
 
 use UnipagoApi\Connection;
+use UnipagoApi\Helper\UriHelper;
 
 /**
  * Class AbstractResource
  * @package UnipagoApi\Resource
  */
-class AbstractResource implements ResourceInterface
+abstract class AbstractResource implements ResourceInterface
 {
-    /**
-     * Returned erros
-     * @var array
-     */
+    /** @var array Erros da última ação */
     protected $erros;
 
-    /**
-     * @var string
-     */
-    protected $resourceName = '';
-
-    /**
-     * @var Connection
-     */
+    /** @var Connection Conexão com OAuth do UniPago */
     protected $connection;
 
+    /** @var array Metadados de paginação */
+    protected $paginador;
+
     /**
-     * AbstractResource constructor.
-     * @param $connection
+     * Inicializa a conexão OAuth
+     *
+     * @param Connection $connection
      */
-    public function __construct($connection)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
     }
 
     /**
+     * Retorna o nome do recurso
+     *
      * @return string
      */
     protected function getResourceName()
     {
-        return $this->resourceName;
+        return constant(get_class($this) . "::RESOURCE_NAME");
     }
 
     /**
-     * @param $dados
-     * @return mixed
+     * Criar um novo registro do recurso
+     *
+     * @param array $dados
+     * @return array|false Dados do registro criado. FALSE é retornado em caso de erros.
      */
-    public function criar($dados)
+    public function criar(array $dados)
     {
-        $response = $this->connection->send(Connection::POST, sprintf("/%s", $this->getResourceName()), $dados);
-        
-        $parsedBody = json_decode($response->getBody()->getContents());
-        if (property_exists($parsedBody, 'errors')) {
-            $this->setErros($parsedBody->errors);
+        if (empty($dados)) {
+            return false;
+        }
+
+        try {
+            $response = $this->connection->send(Connection::POST, UriHelper::getResourcePath($this->getResourceName()), $dados);
+            $parsedBody = json_decode((string) $response->getBody(), true);
+
+            if (array_key_exists('errors', $parsedBody)) {
+                $this->setErros($parsedBody['errors']);
+
+                return false;
+            }
+        } catch (\Exception $exception) {
+            $this->setErros([
+                'message' => $exception->getMessage(),
+                'status'  => $exception->getResponse()->getStatusCode()
+            ]);
 
             return false;
         }
@@ -62,105 +83,157 @@ class AbstractResource implements ResourceInterface
     }
 
     /**
-     * @param $id
-     * @param $dados
-     * @return mixed
+     * Alterar os dados de um registro existente
+     *
+     * @param int $id
+     * @param array $dados
+     * @return array|false Dados do registro alterado. FALSE é retornado em caso de erros.
      */
-    public function alterar($id, $dados)
+    public function alterar($id, array $dados)
     {
         try {
-            $response = $this->connection->send(Connection::PUT, sprintf("/%s/%s", $this->getResourceName(), $id), $dados);
-            return $response;
-        } catch (\Exception $e) {
+            $response = $this->connection->send(Connection::PUT, UriHelper::getResourcePath($this->getResourceName(), $id), $dados);
+            $parsedBody = json_decode((string) $response->getBody(), true);
+
+            if (array_key_exists('errors', $parsedBody)) {
+                $this->setErros($parsedBody['errors']);
+
+                return false;
+            }
+        } catch (\Exception $exception) {
             $this->setErros([
-                'message' => $e->getMessage(),
-                'status' => $e->getResponse()->getStatusCode()
+                'message' => $exception->getMessage(),
+                'status'  => $exception->getResponse()->getStatusCode()
             ]);
+
+            return false;
         }
+
+        return $parsedBody;
     }
 
     /**
-     * @return mixed
+     * Retorna a listagem de registros do recurso
+     *
+     * @param int $pagina [optional] Página a ser buscada
+     * @param array $filtro [optional] Filtrar listagem por campos
+     * @return array
      */
-    public function listar($pagina = 1, $ordem = '', $filtro = [])
+    public function listar($pagina = 1, array $filtro = [])
     {
-        $url = sprintf("/%s", $this->getResourceName());
+        $dados = array_filter([
+            'page' => $pagina,
+            'filter' => $filtro
+        ]);
 
-        $url = $url . '?page=' . $pagina;
+        $response = $this->connection->send(Connection::GET, UriHelper::getResourcePath($this->getResourceName()), $dados);
+        $result = json_decode((string) $response->getBody(), true);
 
-        $response = $this->connection->send(Connection::GET, $url);
-
-        $returnData = json_decode( (string) $response->getBody(), true);
-
-        if ( ! empty($returnData['meta']['pagination'])) {
-            $this->setPaginador($returnData['meta']['pagination']);
+        if (!empty($result['meta']['pagination'])) {
+            $this->setPaginador($result['meta']['pagination']);
         }
 
-        return $returnData['data'];
+        if (empty($result['data'])) {
+            return [];
+        }
+
+        return $result['data'];
     }
 
-    private function setPaginador($paginator) {
+    /**
+     * Define metadados de paginação
+     *
+     * @param array $paginator
+     */
+    private function setPaginador(array $paginator)
+    {
         $this->paginador = $paginator;
     }
 
-    public function getPaginador() {
+    /**
+     * Retorna metadados de paginação
+     *
+     * @return array
+     */
+    public function getPaginador()
+    {
         return $this->paginador;
     }
 
     /**
-     * @param $id
-     * @return mixed
+     * Busca um recurso por ID
+     *
+     * @param int $id
+     * @return array|false|null Dados do registro alterado. FALSE é retornado em caso de erros. NULL caso não encontre o registro
      */
     public function buscar($id)
     {
         try {
-            $response = $this->connection->send(Connection::GET, sprintf("/%s/%s", $this->getResourceName(), $id));
-            return $response->getBody()->getContents();
-        } catch (\Exception $e) {
+            $response = $this->connection->send(Connection::GET, UriHelper::getResourcePath($this->getResourceName(), $id));
+            $parsedBody = json_decode((string) $response->getBody(), true);
+
+            if (array_key_exists('data', $parsedBody)) {
+                return $parsedBody['data'];
+            }
+
+            if (array_key_exists('errors', $parsedBody)) {
+                $this->setErros($parsedBody['errors']);
+
+                return false;
+            }
+        } catch (\Exception $exception) {
             $this->setErros([
-                'message' => $e->getMessage(),
-                'status' => $e->getResponse()->getStatusCode()
+                'message' => $exception->getMessage(),
+                'status'  => $exception->getResponse()->getStatusCode()
             ]);
+
+            return false;
         }
+
+        return null;
     }
 
     /**
-     * @param $id
-     * @return bool
+     * Excluir um registro por ID
+     *
+     * @param int $id
+     * @return bool TRUE em caso de sucesso. FALSE caso contrário.
      */
     public function deletar($id)
     {
         try {
-            $response = $this->connection->send(Connection::DELETE, sprintf("/%s/%s", $this->getResourceName(), $id));
+            $response = $this->connection->send(Connection::DELETE, UriHelper::getResourcePath($this->getResourceName(), $id));
+
             return $response->getStatusCode() == 200;
         } catch (\Exception $e) {
             $this->setErros([
                 'message' => $e->getMessage(),
-                'status' => $e->getResponse()->getStatusCode()
+                'status'  => $e->getResponse()->getStatusCode()
             ]);
         }
+
+        return false;
     }
 
     /**
-     * Gets the Returned erros.
+     * Retorna lista de erros da última requisição
      *
-     * @return array
+     * @return array Lista de erros da útlima requisição
      */
     public function getErros()
     {
-        return $this->errors;
+        return $this->erros;
     }
 
     /**
-     * Sets the Returned erros.
+     * Define os erros da última requisição
      *
-     * @param array $errors the errors
-     *
-     * @return self
+     * @param array $errors Lista de erros da última requisição
+     * @return $this
      */
     protected function setErros(array $errors)
     {
-        $this->errors = $errors;
+        $this->erros = $errors;
 
         return $this;
     }

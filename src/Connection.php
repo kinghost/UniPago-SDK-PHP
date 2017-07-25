@@ -1,59 +1,36 @@
-<?php 
-
+<?php
+/**
+ * This file is part of the kinghost/UniPago-SDK-PHP
+ *
+ * Classe responsável por realizar a autorização e conexão com a API do UniPago
+ *
+ * @copyright Copyright (c) UniPago <suporte@unipago.com.br>
+ * @license https://creativecommons.org/licenses/by/4.0/ Creative Commons Attribution Share Alike 4.0
+ * @link https://packagist.org/packages/unipago/api-sdk-php Packagist
+ * @link https://github.com/kinghost/UniPago-SDK-PHP GitHub
+ */
 namespace UnipagoApi;
 
 use GuzzleHttp\Client as GuzzleClient;
 use League\OAuth2\Client\Provider\GenericProvider;
 use UnipagoApi\Exception\UnipagoException;
+use UnipagoApi\Helper\UriHelper;
 
 /**
-* Client for Unipago Api
-*/
-class Connection 
+ * Class Connection
+ * @package UnipagoApi
+ */
+class Connection implements ConnectionInterface
 {
-
-    /**
-     * @const string Scope for production environment
-     */
-    const SCOPE_PRODUCTION = 'production';
-
-    /**
-     * @const string  Scope for sandbox environment
-     */
-    const SCOPE_SANDBOX = 'sandbox';
-
-    /**
-     * @var string
-     */
-    const DELETE = 'DELETE';
-
-    /**
-     * @var string
-     */
-    const GET = 'GET';
-
-    /**
-     * @var string
-     */
-    const PUT = 'PUT';
-
-    /**
-     * @var string
-     */
-    const POST = 'POST';
-
-    /**
-     * @var string
-     */
-    const METHOD_NOT_IMPLEMENTED = 'Method not implemented';
-
-    /**
-     * @var string
-     */
+    /** @var string API base URL */
     private $apiUrl;
+
+    /** @var string OAuth Access Token */
+    public $accessToken;
 
     /**
      * Client constructor.
+     *
      * @param string $scope
      * @param string $client_id
      * @param string $client_secret
@@ -61,55 +38,56 @@ class Connection
      */
     public function __construct($scope, $client_id, $client_secret)
     {
-
-        if (in_array($scope, [self::SCOPE_PRODUCTION, self::SCOPE_SANDBOX]) == false) {
-            throw new \InvalidArgumentException('Invalid Scope: ' . $scope);
-        }
-
+        $this->apiUrl = UriHelper::getBaseUrl($scope);
         $this->accessToken = $this->getAccessToken($scope, $client_id, $client_secret);
-        $this->apiUrl = ($scope == self::SCOPE_PRODUCTION) ? 'http://api.unipago.com.br' : 'http://api.unipago.com.br/sandbox';
     }
 
     /**
+     * Envia requisição para a API do UniPago
+     *
      * @param string $method
      * @param string $url
      * @param array $data
-     * @return mixed
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      */
     public function send($method, $url, $data = array())
     {
-        $headers = $this->buildHeaders();
-
         $client = new GuzzleClient();
-        $options['headers'] = $headers;
+        $options['headers'] = $this->buildHeaders();
 
         /**
          * Efetua o request
          */
-        if ($method == self::POST || $method == self::PUT) {
-            $options['form_params'] = $data;
+        if (!empty($data)) {
+            if ($method == self::POST || $method == self::PUT) {
+                $options['form_params'] = $data;
+            }
+
+            if ($method === self::GET) {
+                $url .= '?' . http_build_query($data);
+            }
         }
 
-        return $client->request($method, $this->getApiUrl() . $url, $options);
+        return $client->request($method, $this->apiUrl . $url, $options);
     }
 
     /**
+     * Solicita Access Token para o OAuth do UniPago
+     *
      * @param string $scope
      * @param string $clientId
      * @param string $clientSecret
      * @return string
-     * @throws UnipagoException
+     * @throws UnipagoException Caso não consiga realizar a autorização via OAuth
      */
     public function getAccessToken($scope, $clientId, $clientSecret)
     {
-        $oauth_url = 'http://oauth.unipago.com.br';
-
         $provider = new GenericProvider([
-            'clientId'                => $clientId,    // The client ID assigned to you by the provider
-            'clientSecret'            => $clientSecret,    // The client password assigned to you by the provider
-            'urlAuthorize'            => $oauth_url . '/oauth/authorize',
-            'urlAccessToken'          => $oauth_url . '/oauth/access_token',
-            'urlResourceOwnerDetails' => $oauth_url . '/me'
+            'clientId'                => $clientId,
+            'clientSecret'            => $clientSecret,
+            'urlAuthorize'            => UriHelper::getOAuthUrl('/oauth/authorize'),
+            'urlAccessToken'          => UriHelper::getOAuthUrl('/oauth/access_token'),
+            'urlResourceOwnerDetails' => UriHelper::getOAuthUrl('/me')
         ]);
 
         try {
@@ -117,14 +95,15 @@ class Connection
             $accessToken = $provider->getAccessToken('client_credentials', ['scope' => $scope]);
 
             return $accessToken->getToken();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             // Failed to get the access token
-            throw new UnipagoException($e->getMessage(), $e->getCode(), $e);
+            throw new UnipagoException($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
     /**
      * Monta cabeçalho de requisição, adicionando o access_token
+     *
      * @return array              
      */
     private function buildHeaders()
@@ -133,13 +112,5 @@ class Connection
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $this->accessToken
         ];
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getApiUrl()
-    {
-        return $this->apiUrl;
     }
 }
