@@ -13,6 +13,7 @@ namespace UnipagoApi\Resource;
 
 /**
  * Interface ResourceInterface
+ * @package UnipagoApi\Resource
  */
 interface ResourceInterface
 {
