@@ -13,8 +13,8 @@
     ],
     "require": {
         "php": ">=5.6",
-        "guzzlehttp/guzzle": "dev-master",
-        "league/oauth2-client": "dev-master"
+        "guzzlehttp/guzzle": "^6.3",
+        "league/oauth2-client": "^2.2"
     },
     "autoload": {
         "psr-4": {
