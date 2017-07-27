@@ -2,7 +2,7 @@
     "name": "unipago/api-sdk-php",
     "description": "",
     "keywords": ["unipago"],
-    "homepage": "http://gitlab.kinghost.net/unipago/api-sdk-php",
+    "homepage": "https://github.com/kinghost/UniPago-SDK-PHP",
     "license": "MIT",
     "authors": [
         {
