@@ -1,9 +1,14 @@
 {
     "name": "unipago/api-sdk-php",
-    "description": "",
-    "keywords": ["unipago"],
-    "homepage": "http://gitlab.kinghost.net/unipago/api-sdk-php",
-    "license": "MIT",
+    "description": "SDK de consumo da API do UniPago",
+    "keywords": [
+        "unipago",
+        "api",
+        "sdk"
+    ],
+    "homepage": "https://unipago.com.br",
+    "license": "CC-BY-SA-4.0",
+    "minimum-stability": "stable",
     "authors": [
         {
             "name": "Dev SaaS KingHost",
@@ -11,10 +16,10 @@
             "homepage": "http://www.kinghost.com.br/"
         }
     ],
-    "require": {
-        "php": ">=5.5.0",
-        "guzzlehttp/guzzle": "dev-master",
-        "league/oauth2-client": "dev-master"
+    "support": {
+        "email": "dev-servicos@kinghost.com.br",
+        "source": "https://github.com/kinghost/UniPago-SDK-PHP",
+        "issues": "https://github.com/kinghost/UniPago-SDK-PHP/issues"
     },
     "autoload": {
         "psr-4": {
@@ -23,10 +28,20 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "UnipagoApi\\Test\\": "tests/"
         }
     },
-    "config": {
-        "secure-http": false
+    "require": {
+        "php": ">=5.6",
+        "guzzlehttp/guzzle": "^6.3",
+        "league/oauth2-client": "^2.2"
+    },
+    "require-dev": {
+        "phpdocumentor/phpdocumentor": "2.*",
+        "phpunit/phpunit": "^6.2"
+    },
+    "scripts": {
+        "doc": "phpdoc -d src -t docs/api --template responsive-twig",
+        "test": "phpunit"
     }
 }
