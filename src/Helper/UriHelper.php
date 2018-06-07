@@ -30,7 +30,7 @@ class UriHelper
     const SANDBOX_URL = 'https://api.unipago.com.br/sandbox';
 
     /** @var string URL base do OAuth Server */
-    const OAUTH_URL = 'http://oauth.unipago.com.br/';
+    const OAUTH_URL = 'https://oauth.unipago.com.br/';
 
     /**
      * Retorna a url base da API do UniPago baseado no scope
