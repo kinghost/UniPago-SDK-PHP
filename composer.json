@@ -38,7 +38,8 @@
     },
     "require-dev": {
         "phpdocumentor/phpdocumentor": "2.*",
-        "phpunit/phpunit": "^6.2"
+        "phpunit/phpunit": "^6.2",
+        "vlucas/phpdotenv": "^2.5"
     },
     "scripts": {
         "doc": "phpdoc -d src -t docs/api --template responsive-twig",
