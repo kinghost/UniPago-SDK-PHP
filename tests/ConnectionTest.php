@@ -58,7 +58,19 @@ class ConnectionTest extends TestCase
         ];
     }
 
-    public function testValidClientCredentialsGenerateAccessToken()
+    public function testGenerateProductionAccessToken()
+    {
+        list($clientId, $clientSecret) = $this->getClientCredentials();
+
+        $connection = new Connection(Connection::SCOPE_PRODUCTION, $clientId, $clientSecret);
+
+        $this->assertInternalType('string', $connection->accessToken);
+        $this->assertRegExp('/^.*\..*\..*$/', $connection->accessToken);
+
+        return $connection;
+    }
+
+    public function testGenerateSandboxAccessToken()
     {
         list($clientId, $clientSecret) = $this->getClientCredentials();
 
@@ -73,7 +85,7 @@ class ConnectionTest extends TestCase
     /**
      * @param Connection $connection
      *
-     * @depends testValidClientCredentialsGenerateAccessToken
+     * @depends testGenerateSandboxAccessToken
      */
     public function testInvalidMethodReturnsBadRequest(Connection $connection)
     {
@@ -85,7 +97,7 @@ class ConnectionTest extends TestCase
     /**
      * @param Connection $connection
      *
-     * @depends testValidClientCredentialsGenerateAccessToken
+     * @depends testGenerateSandboxAccessToken
      */
     public function testInvalidUrlReturnsNotFoundResponse(Connection $connection)
     {
