@@ -102,7 +102,7 @@ class Connection implements ConnectionInterface
 
         try {
             // Try to get an access token using the client credentials grant.
-            $accessToken = $provider->getAccessToken('client_credentials', ['scopes' => $scope]);
+            $accessToken = $provider->getAccessToken('client_credentials', ['scope' => $scope]);
 
             return $accessToken->getToken();
         } catch (\Exception $exception) {
