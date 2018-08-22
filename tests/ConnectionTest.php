@@ -44,9 +44,11 @@ class ConnectionTest extends TestCase
     /**
      * Carrega clientId e clientSecret do arquivo .env caso já não tenha sido definido
      *
+     * @param string $env Nome do ambiente a buscar as configurações
+     *
      * @return array
      */
-    private function getClientCredentials(string $env)
+    private function getClientCredentials($env)
     {
         if (!getenv($env . '_CLIENT_ID') || !getenv($env . '_CLIENT_SECRET')) {
             $dotenv = new Dotenv(dirname(__DIR__));
