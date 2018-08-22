@@ -48,7 +48,7 @@ class ConnectionTest extends TestCase
      */
     private function getClientCredentials(string $env)
     {
-        if (!getenv($env . '_CLIENT_ID') || !getenv($env . 'CLIENT_SECRET')) {
+        if (!getenv($env . '_CLIENT_ID') || !getenv($env . '_CLIENT_SECRET')) {
             $dotenv = new Dotenv(dirname(__DIR__));
             $dotenv->load();
         }
