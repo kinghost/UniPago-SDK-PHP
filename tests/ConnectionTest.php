@@ -45,22 +45,22 @@ class ConnectionTest extends TestCase
      *
      * @return array
      */
-    private function getClientCredentials()
+    private function getClientCredentials(string $env)
     {
-        if (!getenv('CLIENT_ID') || !getenv('CLIENT_SECRET')) {
+        if (!getenv($env . '_CLIENT_ID') || !getenv($env . 'CLIENT_SECRET')) {
             $dotenv = new Dotenv(dirname(__DIR__));
             $dotenv->load();
         }
 
         return [
-            getenv('CLIENT_ID'),
-            getenv('CLIENT_SECRET')
+            getenv($env . '_CLIENT_ID'),
+            getenv($env . '_CLIENT_SECRET')
         ];
     }
 
     public function testGenerateProductionAccessToken()
     {
-        list($clientId, $clientSecret) = $this->getClientCredentials();
+        list($clientId, $clientSecret) = $this->getClientCredentials('PRODUCTION');
 
         $connection = new Connection(Connection::SCOPE_PRODUCTION, $clientId, $clientSecret);
 
@@ -72,7 +72,7 @@ class ConnectionTest extends TestCase
 
     public function testGenerateSandboxAccessToken()
     {
-        list($clientId, $clientSecret) = $this->getClientCredentials();
+        list($clientId, $clientSecret) = $this->getClientCredentials('SANDBOX');
 
         $connection = new Connection(Connection::SCOPE_SANDBOX, $clientId, $clientSecret);
 
