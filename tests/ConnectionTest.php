@@ -14,6 +14,7 @@
 namespace UnipagoApi\Test;
 
 use Dotenv\Dotenv;
+use Lcobucci\JWT\Parser;
 use PHPUnit\Framework\TestCase;
 use UnipagoApi\Connection;
 
@@ -70,6 +71,19 @@ class ConnectionTest extends TestCase
         return $connection;
     }
 
+    /**
+     * @param Connection $connection
+     *
+     * @depends testGenerateProductionAccessToken
+     */
+    public function testProductionAccessTokenHasProductionScope(Connection $connection)
+    {
+        $parser = new Parser();
+        $token = $parser->parse($connection->accessToken);
+
+        $this->assertContains(Connection::SCOPE_PRODUCTION, $token->getClaim('scopes'));
+    }
+
     public function testGenerateSandboxAccessToken()
     {
         list($clientId, $clientSecret) = $this->getClientCredentials('SANDBOX');
@@ -80,6 +94,19 @@ class ConnectionTest extends TestCase
         $this->assertRegExp('/^.*\..*\..*$/', $connection->accessToken);
 
         return $connection;
+    }
+
+    /**
+     * @param Connection $connection
+     *
+     * @depends testGenerateSandboxAccessToken
+     */
+    public function testSandboxAccessTokenHasSandboxScope(Connection $connection)
+    {
+        $parser = new Parser();
+        $token = $parser->parse($connection->accessToken);
+
+        $this->assertContains(Connection::SCOPE_SANDBOX, $token->getClaim('scopes'));
     }
 
     /**
