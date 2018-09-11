@@ -42,8 +42,13 @@ class UriHelper
     public static function getBaseUrl($scope = Connection::SCOPE_SANDBOX)
     {
         $scope = strtoupper($scope);
-        $constant = constant("self::{$scope}_URL");
 
+        $name = "self::{$scope}_URL";
+        if (!defined($name)) {
+            throw new UnipagoException('Scope de ambiente de conexão inválido');
+        }
+
+        $constant = constant($name);
         if (!$constant) {
             throw new UnipagoException('Não foi possível identificar o ambiente de conexão');
         }
